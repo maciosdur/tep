@@ -32,15 +32,12 @@ CResult<Tree*, CError> buildTreeFromExpression(const std::string& expr) {
     }
 
     Tree* tree = new Tree();
-    try {
-        tree->buildFromString(expr);  
-        if (tree->printPrefix() == "Drzewo jest puste.") {
-            delete tree;
-            return CResult<Tree*, CError>::cFail(new CError("Niepoprawne wyrażenie"));
-        }
-    } catch (...) {
-        delete tree;
-        return CResult<Tree*, CError>::cFail(new CError("Błąd podczas budowania drzewa"));
+    tree->buildFromString(expr);
+
+    
+    if (tree->printPrefix() == "Drzewo jest puste.") {
+        delete tree; 
+        return CResult<Tree*, CError>::cFail(new CError("Niepoprawne wyrażenie"));
     }
 
     return CResult<Tree*, CError>::cOk(tree);

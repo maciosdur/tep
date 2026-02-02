@@ -1,11 +1,11 @@
 #pragma once
 #include "CRefCounter.h"
+#include <iostream>
 
 template <typename T>
 class CMySmartPointer
 {
 public:
-    // konstruktor z surowym wskaźnikiem
     CMySmartPointer(T* pcPointer)
     {
         pc_pointer = pcPointer;
@@ -13,7 +13,6 @@ public:
         pc_counter->iAdd();
     }
 
-    // konstruktor kopiujący
     CMySmartPointer(const CMySmartPointer<T>& cOther)
     {
         pc_pointer = cOther.pc_pointer;
@@ -25,26 +24,21 @@ public:
     {
         if (this == &cOther) return *this;
 
-        // 2. Musimy "odpiąć się" od starego wskaźnika,
-        // bo zaraz podepniemy się pod nowy.
-        // Robimy to samo co w destruktorze.
+
         if (pc_counter->iDec() == 0)
         {
             delete pc_pointer;
             delete pc_counter;
         }
 
-        // 3. Przepisujemy wskaźniki z drugiego obiektu
         pc_pointer = cOther.pc_pointer;
         pc_counter = cOther.pc_counter;
 
-        // 4. Zwiększamy licznik dla nowego obiektu
         pc_counter->iAdd();
 
         return *this;
     }
 
-    // destruktor
     ~CMySmartPointer()
     {
         if (pc_counter->iDec() == 0)
@@ -54,13 +48,11 @@ public:
         }
     }
 
-    // dereferencja
     T& operator*()
     {
         return *pc_pointer;
     }
 
-    // dostęp do pól/metod
     T* operator->()
     {
         return pc_pointer;
@@ -68,7 +60,40 @@ public:
 
     int iGetRefCount() const { 
     return pc_counter->iGet(); 
-}
+    }
+
+    CMySmartPointer(CMySmartPointer<T>&& cOther) {
+        pc_pointer = cOther.pc_pointer;
+        pc_counter = cOther.pc_counter;
+
+        
+        cOther.pc_pointer = nullptr;
+        cOther.pc_counter = nullptr;
+
+        std::cout << "SMART_PTR_MOVE_CONSTRUCTOR" << std::endl;
+    }
+
+    CMySmartPointer<T>& operator=(CMySmartPointer<T>&& cOther) {
+        if (this == &cOther) return *this;
+
+
+        if (pc_counter != nullptr && pc_counter->iDec() == 0) {
+            delete pc_pointer;
+            delete pc_counter;
+        }
+
+
+        pc_pointer = cOther.pc_pointer;
+        pc_counter = cOther.pc_counter;
+
+        cOther.pc_pointer = nullptr;
+        cOther.pc_counter = nullptr;
+
+        std::cout << "SMART_PTR_MOVE_ASSIGNMENT" << std::endl;
+        return *this;
+    }
+    
+
 
 private:
     T* pc_pointer;

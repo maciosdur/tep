@@ -291,12 +291,10 @@ CResult<Tree*, CError> Tree::buildFromStringResult(const std::string& expression
 
 // Konstruktor przenoszący
 Tree::Tree(Tree&& other) {
-    // 1. "Kradniemy" zasoby
     root = other.root;
-    variables = other.variables; // Mapę też możemy przenieść
+    variables = other.variables; 
     lastBuildFilledMissing = other.lastBuildFilledMissing;
 
-    // 2. Zerujemy źródło, aby destruktor 'other' nie usunął root
     other.root = NULL;
     other.variables.clear();
     
@@ -305,18 +303,14 @@ Tree::Tree(Tree&& other) {
 
 // Operator przypisania przenoszącego
 Tree& Tree::operator=(Tree&& other) {
-    // 1. Zabezpieczenie przed przypisaniem do samego siebie
     if (this == &other) return *this;
 
-    // 2. Musimy zwolnić aktualną pamięć (wywołujemy Twoją metodę clear)
     clear();
 
-    // 3. Przejmujemy zasoby z drugiego obiektu
     root = other.root;
     variables = other.variables;
     lastBuildFilledMissing = other.lastBuildFilledMissing;
 
-    // 4. Bardzo ważne: odcinamy źródło od wskaźników
     other.root = NULL;
     other.variables.clear();
 
